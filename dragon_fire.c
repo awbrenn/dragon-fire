@@ -76,8 +76,8 @@ unsigned int set_shaders()
 
     v = glCreateShader(GL_VERTEX_SHADER);
     f = glCreateShader(GL_FRAGMENT_SHADER);
-    vs = read_shader_program("phongEC.vert");
-    fs = read_shader_program("phongEC.frag");
+    vs = read_shader_program("dragon_fire.vert");
+    fs = read_shader_program("dragon_fire.frag");
     glShaderSource(v,1,(const char **)&vs,NULL);
     glShaderSource(f,1,(const char **)&fs,NULL);
     free(vs);

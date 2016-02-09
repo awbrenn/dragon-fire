@@ -1,0 +1,19 @@
+Computer Graphics (CPSC 6050) Project 2: Dragon Fire!
+
+
+Professor:	Dr. Robert Geist
+Team Members:	Austin Brennan, Yu Lee, Matthew Pfister
+Due Date:	3/3/2016
+
+
+Project Description:
+
+This is a team project for a graduate level computer graphics course
+at Clemson University. The goal is to get a better understanding of
+OpenGL and GLSL (the OpenGL Shading Language).
+
+Upon completion of this project, the program should be able to load a
+complex dragon mesh into an OpenGL scene, and shade it using a
+normalized Phong shader and 3-point lighting. The user should be able
+to navigate the scene using the alt-key and a combination of mouse
+clicks/movement (similiar to navigation in Maya or Unity).
