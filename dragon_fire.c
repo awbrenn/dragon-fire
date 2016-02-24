@@ -13,6 +13,8 @@
 #include <stdlib.h>
 #include <fcntl.h>
 
+#include "viewport_navigation.h"
+
 float eye[] = {3.0,3.0,3.0};
 float viewpt[] = {0.0,0.0,0.0};
 float up[] = {0.0,1.0,0.0};
@@ -26,9 +28,9 @@ char *read_shader_program(char *filename)
     fd = open(filename,O_RDONLY);
     count = lseek(fd,0,SEEK_END);
     close(fd);
-    content = (char *)calloc(1,(count+1));
+    content = (char *)calloc(1,(size_t)(count+1));
     fp = fopen(filename,"r");
-    count = fread(content,sizeof(char),count,fp);
+    count = (int)fread(content,sizeof(char),(size_t)count,fp);
     content[count] = '\0';
     fclose(fp);
     return content;
@@ -58,10 +60,11 @@ void view_volume()
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(eye[0],eye[1],eye[2],viewpt[0],viewpt[1],viewpt[2],up[0],up[1],up[2]);
-    }
+}
 
-    void renderScene(void)
-    {
+void renderScene(void)
+{
+
     glClearColor(0.5,0.4,0.3,1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glutSolidTorus(0.4,0.8,128,128);
@@ -92,6 +95,25 @@ unsigned int set_shaders()
     return(p);
 }
 
+
+void handleMouse(int button, int state, int x, int y)
+{
+    enum ACTION mouse_action = (enum ACTION) button;
+
+    // check for mouse wheel event
+    if ((mouse_action == mouse_wheel_forward) || (mouse_action == mouse_wheel_backward))
+    {
+        calculateNewEyeLocation(mouse_action, eye, viewpt);
+        view_volume();
+    }
+}
+
+
+void idle()
+{
+    glutPostRedisplay();
+}
+
 void getout(unsigned char key, int x, int y)
 {
     switch(key) {
@@ -116,7 +138,9 @@ int main(int argc, char **argv)
     set_material();
     set_shaders();
     glutDisplayFunc(renderScene);
+    glutIdleFunc(idle);
     glutKeyboardFunc(getout);
+    glutMouseFunc(handleMouse);
     glutMainLoop();
     return 0;
 }
