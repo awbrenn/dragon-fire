@@ -19,6 +19,10 @@ float eye[] = {3.0,3.0,3.0};
 float viewpt[] = {0.0,0.0,0.0};
 float up[] = {0.0,1.0,0.0};
 float light0_position[] = {3.0,3.0,3.0,1.0};
+int left_button_down = 0;
+int start_x;
+int start_y;
+float start_eye[3];
 
 char *read_shader_program(char *filename) 
 {
@@ -84,7 +88,7 @@ unsigned int set_shaders()
     glShaderSource(v,1,(const char **)&vs,NULL);
     glShaderSource(f,1,(const char **)&fs,NULL);
     free(vs);
-    free(fs); 
+    free(fs);
     glCompileShader(v);
     glCompileShader(f);
     p = glCreateProgram();
@@ -98,16 +102,31 @@ unsigned int set_shaders()
 
 void handleMouse(int button, int state, int x, int y)
 {
-    enum ACTION mouse_action = (enum ACTION) button;
+  enum MOUSE_ACTION mouse_action = (enum MOUSE_ACTION) button;
 
-    // check for mouse wheel event
-    if ((mouse_action == mouse_wheel_forward) || (mouse_action == mouse_wheel_backward))
-    {
-        calculateNewEyeLocation(mouse_action, eye, viewpt);
-        view_volume();
-    }
+  switch(mouse_action) {
+    case mouse_wheel_forward: case mouse_wheel_backward:
+      zoomEye((enum VIEWPORT_ACTION) mouse_action, eye, viewpt);
+      view_volume();
+      break;
+    case left_mouse_button:
+      left_button_down = (state == GLUT_DOWN) ? 1 : 0;
+      start_x = x;
+      start_y = y;
+      break;
+    default:
+      break;
+  }
 }
 
+void moveMouse(int x, int y) {
+  if (left_button_down == 1) {
+    rotateEye(x, y, start_x, start_y, eye, viewpt);
+    start_x = x;
+    start_y = y;
+    view_volume();
+  }
+}
 
 void idle()
 {
@@ -141,6 +160,7 @@ int main(int argc, char **argv)
     glutIdleFunc(idle);
     glutKeyboardFunc(getout);
     glutMouseFunc(handleMouse);
+    glutMotionFunc(moveMouse);
     glutMainLoop();
     return 0;
 }
