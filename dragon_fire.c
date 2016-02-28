@@ -16,7 +16,9 @@
 #include "viewport_navigation.h"
 
 float eye[] = {3.0,3.0,3.0};
+float original_eye[] = {3.0,3.0,3.0};
 float viewpt[] = {0.0,0.0,0.0};
+float original_viewpt[] = {0.0,0.0,0.0};
 float up[] = {0.0,1.0,0.0};
 float light0_position[] = {3.0,3.0,3.0,1.0};
 int left_button_down = 0;
@@ -107,7 +109,7 @@ void handleMouse(int button, int state, int x, int y)
 
   switch(mouse_action) {
     case mouse_wheel_forward: case mouse_wheel_backward:
-      zoomEye((enum VIEWPORT_ACTION) mouse_action, eye, viewpt);
+      zoomEye(mouse_action, eye, viewpt);
       view_volume();
       break;
     case left_mouse_button:
@@ -124,7 +126,7 @@ void handleMouse(int button, int state, int x, int y)
   }
 }
 
-void moveMouse(int x, int y) {
+void handleMovedMouse(int x, int y) {
   if (left_button_down == 1) {
     rotateEye(x, y, start_x, start_y, eye, viewpt);
     start_x = x;
@@ -144,14 +146,23 @@ void idle()
     glutPostRedisplay();
 }
 
-void getout(unsigned char key, int x, int y)
+void handleKeys(unsigned char key, int x, int y)
 {
-    switch(key) {
-        case 'q':
-                exit(1);
-        default:
-                break;
-    }
+  switch(key) {
+    case 'q':
+      exit(1);
+    case 'f':
+      movePointToLocation(viewpt, original_viewpt);
+      view_volume();
+      break;
+    case 'r':
+      movePointToLocation(viewpt, original_viewpt);
+      movePointToLocation(eye, original_eye);
+      view_volume();
+      break;
+    default:
+      break;
+  }
 }
 
 int main(int argc, char **argv)
@@ -169,9 +180,9 @@ int main(int argc, char **argv)
     set_shaders();
     glutDisplayFunc(renderScene);
     glutIdleFunc(idle);
-    glutKeyboardFunc(getout);
+    glutKeyboardFunc(handleKeys);
     glutMouseFunc(handleMouse);
-    glutMotionFunc(moveMouse);
+    glutMotionFunc(handleMovedMouse);
     glutMainLoop();
     return 0;
 }
