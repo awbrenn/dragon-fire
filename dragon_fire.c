@@ -125,6 +125,7 @@ void moveMouse(int x, int y) {
     start_x = x;
     start_y = y;
     view_volume();
+//    printf("eye position: %f %f %f\n", eye[0], eye[1], eye[2]);
   }
 }
 

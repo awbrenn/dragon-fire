@@ -7,6 +7,7 @@
 
 float ZOOM_INCREMENT = 0.1f;
 float ZOOM_MIN = 0.1f;
+float ROTATE_MIN = 0.1f;
 
 
 float getMagnitudeOfVector(float x, float y, float z) {
@@ -49,73 +50,44 @@ void zoomEye(enum VIEWPORT_ACTION viewport_action, float* eye_position, float* v
   *(eye_position+2) += view_direction_normalized[2] * zoom_direction * ZOOM_INCREMENT;
 }
 
+// yields the result of rotating the point (x,y,z) about the line through (a,b,c)
+// with direction vector ⟨u,v,w⟩ (where u2 + v2 + w2 = 1) by the angle θ.
+void rotateByArbitraryAxis(float x, float y, float z,
+                           float a, float b, float c,
+                           float u, float v, float w,
+                           float theta, float *result)
+{
+  float cos_theta = cosf(theta);
+  float sin_theta = sinf(theta);
 
-float dotProduct(float *a, float *b) {
-  return (*(a))*(*(b)) +
-         (*(a+1))*(*(b+1)) +
-         (*(a+2))*(*(b+2));
+  (*(result    )) = (a*(v*v + w*w) - u*(b*v + c*w - u*x - v*y - w*z)) * (1-cos_theta) + x*cos_theta + ((-1.0f)*c*v + b*w - w*y + v*z)*sin_theta;
+  (*(result + 1)) = (b*(u*u + w*w) - v*(a*u + c*w - u*x - v*y - w*z)) * (1-cos_theta) + y*cos_theta + (        c*u - a*w + w*x - u*z)*sin_theta;
+  (*(result + 2)) = (c*(u*u + v*v) - w*(a*u + b*v - u*x - v*y - w*z)) * (1-cos_theta) + z*cos_theta + ((-1.0f)*b*u + a*v - v*x + u*y)*sin_theta;
+
 }
 
+// get the axis that is perpendicular to vector u and the y axis
+void getRotationAxis(float *u, float *result) {
+  (*(result  )) = (-1.0f)*(*(u+2));
+  (*(result+1)) = 0.0f;
+  (*(result+2)) = (*u);
 
-float getAngle(float x, float y, float z) {
-  float view_point_to_eye_normalized[3];
-  float forward[3] = {0.0f, 0.0f, 1.0f};
-  float distance;
-
-  // get rid of y component
-  view_point_to_eye_normalized[0] = x;
-  view_point_to_eye_normalized[1] = y;
-  view_point_to_eye_normalized[2] = z;
-
-  distance = getMagnitudeOfVector(view_point_to_eye_normalized[0],
-                                   view_point_to_eye_normalized[1],
-                                   view_point_to_eye_normalized[2]);
-
-  view_point_to_eye_normalized[0] /= distance;
-  view_point_to_eye_normalized[1] /= distance;
-  view_point_to_eye_normalized[2] /= distance;
-
-  return acosf(dotProduct(view_point_to_eye_normalized, forward));
-}
-
-
-
-
-
-void multiply3by3Matrices(float *a, float *b, float *r) {
-  (*(r  )) = (*(a  ))*(*(b  )) + (*(a+1))*(*(b+3)) + (*(a+2))*(*(b+6));
-  (*(r+1)) = (*(a  ))*(*(b+1)) + (*(a+1))*(*(b+4)) + (*(a+2))*(*(b+7));
-  (*(r+2)) = (*(a  ))*(*(b+2)) + (*(a+1))*(*(b+5)) + (*(a+2))*(*(b+8));
-  (*(r+3)) = (*(a+3))*(*(b  )) + (*(a+4))*(*(b+3)) + (*(a+5))*(*(b+6));
-  (*(r+4)) = (*(a+3))*(*(b+1)) + (*(a+4))*(*(b+4)) + (*(a+5))*(*(b+7));
-  (*(r+5)) = (*(a+3))*(*(b+2)) + (*(a+4))*(*(b+5)) + (*(a+5))*(*(b+8));
-  (*(r+6)) = (*(a+6))*(*(b  )) + (*(a+7))*(*(b+3)) + (*(a+8))*(*(b+6));
-  (*(r+7)) = (*(a+6))*(*(b+1)) + (*(a+7))*(*(b+4)) + (*(a+8))*(*(b+7));
-  (*(r+8)) = (*(a+6))*(*(b+2)) + (*(a+7))*(*(b+5)) + (*(a+8))*(*(b+8));
-}
-
-
-void multiplyEyeByRotationMatrix(float *a, float *b, float *r, float distance) {
-  (*(r  )) = ((*(a  ))*(*(b  )) + (*(a+1))*(*(b+1)) + (*(a+2))*(*(b+2))) * distance;
-  (*(r+1)) = ((*(a+3))*(*(b  )) + (*(a+4))*(*(b+1)) + (*(a+5))*(*(b+2))) * distance;
-  (*(r+2)) = ((*(a+6))*(*(b  )) + (*(a+7))*(*(b+1)) + (*(a+8))*(*(b+2))) * distance;
 }
 
 
 void rotateEye(int x, int y, int start_x, int start_y, float* eye_position, float* view_point) {
   float view_point_to_eye[3];
   float distance_view_point_to_eye;
-  float rotation_matrix[9];
-  float yaw_matrix[9];
+  float magnitude_of_rotation_axis;
   float change_in_yaw;
-  float pitch_matrix[9];
   float change_in_pitch;
+  float rotation_axis[3];
 
 
-  change_in_pitch = (-1.0f) * ((float) x - start_x) / 100.0f;
-  change_in_yaw = (-1.0f) * ((float) y - start_y) / 100.0f;
+  change_in_pitch =         ((float) y - start_y) / 500.0f;
+  change_in_yaw = (-1.0f) * ((float) x - start_x) / 500.0f;
 
-  view_point_to_eye[0] = *(eye_position) - *(view_point);
+  view_point_to_eye[0] = *(eye_position    ) - *(view_point    );
   view_point_to_eye[1] = *(eye_position + 1) - *(view_point + 1);
   view_point_to_eye[2] = *(eye_position + 2) - *(view_point + 2);
 
@@ -128,26 +100,22 @@ void rotateEye(int x, int y, int start_x, int start_y, float* eye_position, floa
   view_point_to_eye[1] /= distance_view_point_to_eye;
   view_point_to_eye[2] /= distance_view_point_to_eye;
 
-  yaw_matrix[0] = cosf(change_in_yaw);
-  yaw_matrix[1] = (-1.0f)*sinf(change_in_yaw);
-  yaw_matrix[2] = 0.0f;
-  yaw_matrix[3] = sinf(change_in_yaw);
-  yaw_matrix[4] = cosf(change_in_yaw);
-  yaw_matrix[5] = 0.0f;
-  yaw_matrix[6] = 0.0f;
-  yaw_matrix[7] = 0.0f;
-  yaw_matrix[8] = 1.0f;
+  // rotate the eye about the y axis relative to the view point
+  rotateByArbitraryAxis(*(eye_position), *(eye_position+1), *(eye_position+2),
+                        *(view_point)  , *(view_point+1)  , *(view_point+2),
+                        0.0f, 1.0f, 0.0f, change_in_yaw, eye_position);
 
-  pitch_matrix[0] = cosf(change_in_pitch);
-  pitch_matrix[1] = 0.0f;
-  pitch_matrix[2] = sinf(change_in_pitch);
-  pitch_matrix[3] = 0.0f;
-  pitch_matrix[4] = 1.0f;
-  pitch_matrix[5] = 0.0f;
-  pitch_matrix[6] = (-1.0f)*sinf(change_in_pitch);
-  pitch_matrix[7] = 0.0f;
-  pitch_matrix[8] = cosf(change_in_pitch);
+  getRotationAxis(view_point_to_eye, rotation_axis);
 
-  multiply3by3Matrices(yaw_matrix, pitch_matrix, rotation_matrix);
-  multiplyEyeByRotationMatrix(rotation_matrix, view_point_to_eye, eye_position, distance_view_point_to_eye);
+  // normalize rotation axis
+  magnitude_of_rotation_axis = getMagnitudeOfVector(rotation_axis[0], rotation_axis[1], rotation_axis[2]);
+  rotation_axis[0] /= magnitude_of_rotation_axis;
+  rotation_axis[1] /= magnitude_of_rotation_axis;
+  rotation_axis[2] /= magnitude_of_rotation_axis;
+
+  // rotate the eye about the rotation axis relative to the viewpoint
+  rotateByArbitraryAxis(*(eye_position ), *(eye_position +1), *(eye_position +2),
+                        *(view_point   ), *(view_point   +1), *(view_point   +2),
+                        *(rotation_axis), *(rotation_axis+1), *(rotation_axis+2),
+                        change_in_pitch, eye_position);
 }
