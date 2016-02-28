@@ -1,8 +1,7 @@
 // These are set by the .vert code, and they're interpolated.
 varying vec3 ec_vnormal, ec_vposition;
 
-void main()
-{
+void lightGeometry(int light_index, float influence) {
     vec3 P, N, L, V, H;
     vec4 diffuse_color = gl_FrontMaterial.diffuse; 
     vec4 specular_color = gl_FrontMaterial.specular; 
@@ -10,11 +9,25 @@ void main()
 
     P = ec_vposition;
     N = normalize(ec_vnormal);
-    L = normalize(gl_LightSource[0].position - P);
+    L = normalize(gl_LightSource[light_index].position - P);
     V = normalize(-P);              // eye position is (0,0,0)!
     H = normalize(L+V);
             
     diffuse_color *= max(dot(N,L),0.0);
     specular_color *= pow(max(dot(H,N),0.0),shininess);
-    gl_FragColor = (diffuse_color + specular_color);
+    gl_FragColor += (diffuse_color + specular_color) * influence;
+}
+
+void capFragColor() {
+    gl_FragColor.x = min(gl_FragColor.x, 1.0);
+    gl_FragColor.y = min(gl_FragColor.y, 1.0);
+    gl_FragColor.z = min(gl_FragColor.z, 1.0);
+}
+
+void main()
+{
+    gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+    lightGeometry(0, 1.0);
+    lightGeometry(1, 0.1);
+    capFragColor();
 }
