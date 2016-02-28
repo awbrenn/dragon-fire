@@ -22,7 +22,8 @@ enum VIEWPORT_ACTION
   viewport_zoom_out = 4,
 };
 
-void zoomEye(enum VIEWPORT_ACTION viewport_action, float* eye_position, float* view_point);
-void rotateEye(int x, int y, int start_x, int start_y, float* eye_position, float* view_point);
+void zoomEye   (enum VIEWPORT_ACTION viewport_action, float* eye_position, float* view_point);
+void rotateEye (int x, int y, int start_x, int start_y, float* eye_position, float* view_point);
+void panEye    (int x, int y, int start_x, int start_y, float* eye_position, float* view_point);
 
 #endif //DRAGON_FIRE_VIEWPORT_NAVIGATION_H

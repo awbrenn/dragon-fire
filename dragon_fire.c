@@ -20,6 +20,7 @@ float viewpt[] = {0.0,0.0,0.0};
 float up[] = {0.0,1.0,0.0};
 float light0_position[] = {3.0,3.0,3.0,1.0};
 int left_button_down = 0;
+int middle_button_down = 0;
 int start_x;
 int start_y;
 float start_eye[3];
@@ -114,6 +115,10 @@ void handleMouse(int button, int state, int x, int y)
       start_x = x;
       start_y = y;
       break;
+    case middle_mouse_button:
+      middle_button_down = (state == GLUT_DOWN) ? 1 : 0;
+      start_x = x;
+      start_y = y;
     default:
       break;
   }
@@ -125,7 +130,12 @@ void moveMouse(int x, int y) {
     start_x = x;
     start_y = y;
     view_volume();
-//    printf("eye position: %f %f %f\n", eye[0], eye[1], eye[2]);
+  }
+  else if (middle_button_down == 1) {
+    panEye(x, y, start_x, start_y, eye, viewpt);
+    start_x = x;
+    start_y = y;
+    view_volume();
   }
 }
 
