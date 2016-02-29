@@ -25,8 +25,7 @@ void makeUnitLength(float *vector) {
 }
 
 
-void zoomEye(enum MOUSE_ACTION mouse_action, float* eye_position, float* view_point)
-{
+void zoomEye(enum MOUSE_ACTION mouse_action, float* eye_position, float* view_point) {
   float zoom_direction;
   float view_direction_magnitude;
   float view_direction[3];
@@ -92,14 +91,14 @@ void getUnitVectorViewPointToEye(float *view_point, float *eye_position, float *
 }
 
 
-void rotateEye(int x, int y, int start_x, int start_y, float* eye_position, float* view_point) {
+void rotateEye(int x, int y, int start_x, int start_y, float* eye_position, float* view_point, float sensitivity) {
   float view_point_to_eye[3];
   float change_in_yaw;
   float change_in_pitch;
   float rotation_axis[3];
 
-  change_in_pitch =           ((float) y - start_y) / 500.0f;
-  change_in_yaw   = (-1.0f) * ((float) x - start_x) / 500.0f;
+  change_in_pitch =           ((float) y - start_y) / sensitivity;
+  change_in_yaw   = (-1.0f) * ((float) x - start_x) / sensitivity;
 
   getUnitVectorViewPointToEye(view_point, eye_position, view_point_to_eye);
 
@@ -118,15 +117,15 @@ void rotateEye(int x, int y, int start_x, int start_y, float* eye_position, floa
 }
 
 
-void panEye(int x, int y, int start_x, int start_y, float* eye_position, float* view_point) {
+void panEye(int x, int y, int start_x, int start_y, float* eye_position, float* view_point, float sensitivity) {
   float change_in_x;
   float change_in_y;
   float perpendicular_axis[3];
   float view_point_to_eye[3];
 
 
-  change_in_x = ((float) x - start_x)/200;
-  change_in_y = ((float) y - start_y)/200;
+  change_in_x = ((float) x - start_x)/sensitivity;
+  change_in_y = ((float) y - start_y)/sensitivity;
 
   // pan along y axis
   eye_position[1] += change_in_y;

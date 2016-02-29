@@ -18,8 +18,8 @@ enum MOUSE_ACTION
 
 // camera manipulation functions
 void zoomEye   (enum MOUSE_ACTION viewport_action, float* eye_position, float* view_point);
-void rotateEye (int x, int y, int start_x, int start_y, float* eye_position, float* view_point);
-void panEye    (int x, int y, int start_x, int start_y, float* eye_position, float* view_point);
+void rotateEye (int x, int y, int start_x, int start_y, float* eye_position, float* view_point, float sensitivity);
+void panEye    (int x, int y, int start_x, int start_y, float* eye_position, float* view_point, float sensitivity);
 
 void movePointToLocation(float *point, float *location);
 

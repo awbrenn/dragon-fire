@@ -74,7 +74,7 @@ void view_volume()
 void renderScene(void)
 {
 
-    glClearColor(0.5,0.4,0.3,1.0);
+    glClearColor(0.5,0.5,0.53,1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glutSolidTorus(0.4,0.8,128,128);
     glutSwapBuffers();
@@ -130,13 +130,13 @@ void handleMouse(int button, int state, int x, int y)
 
 void handleMovedMouse(int x, int y) {
   if (left_button_down == 1) {
-    rotateEye(x, y, start_x, start_y, eye, viewpt);
+    rotateEye(x, y, start_x, start_y, eye, viewpt, 300.0f);
     start_x = x;
     start_y = y;
     view_volume();
   }
   else if (middle_button_down == 1) {
-    panEye(x, y, start_x, start_y, eye, viewpt);
+    panEye(x, y, start_x, start_y, eye, viewpt, 200.0f);
     start_x = x;
     start_y = y;
     view_volume();
