@@ -22,6 +22,7 @@ float original_viewpt[] = {0.0,0.0,0.0};
 float up[] = {0.0,1.0,0.0};
 float light0_position[] = {3.0,3.0,3.0,1.0};
 float light1_position[] = {3.0,-3.0,-3.0,1.0};
+float light2_position[] = {-3.0,3.0,3.0,1.0};
 int left_button_down = 0;
 int middle_button_down = 0;
 int start_x;
@@ -48,6 +49,7 @@ void set_light()
 {
     glLightfv(GL_LIGHT0,GL_POSITION,light0_position);
     glLightfv(GL_LIGHT1,GL_POSITION,light1_position);
+    glLightfv(GL_LIGHT1,GL_POSITION,light2_position);
 } 
 
 void set_material()
