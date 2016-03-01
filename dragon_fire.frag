@@ -5,6 +5,7 @@ void lightGeometry(int light_index,float influence){
     vec4 ambient_color=gl_FrontMaterial.ambient;
     vec4 diffuse_color = gl_FrontMaterial.diffuse; 
     vec4 specular_color = gl_FrontMaterial.specular; 
+    const float PI = 3.141592653589793238462643383;
     float shininess = gl_FrontMaterial.shininess;
 
     P = ec_vposition;
@@ -15,7 +16,8 @@ void lightGeometry(int light_index,float influence){
 
     diffuse_color *= max(dot(N,L),0.0);
     //Blinn
-    // specular_color *= pow(max(dot(H,N),0.0),shininess);
+    float n=(shininess+2)/(8*PI);
+     specular_color *= (n*pow(max(dot(H,N),0.0),shininess));
     //Phong
     R = reflect(-L,N);
     specular_color*=pow(max(dot(R,V),0.0),shininess/4.0);
